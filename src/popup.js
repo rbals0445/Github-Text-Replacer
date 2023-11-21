@@ -1,19 +1,29 @@
-const $input = document.getElementById("input");
-const $output = document.getElementById("output");
+import { getChromeLocalStorage, setChromeLocalStorage } from "./utils.js";
 
-console.log($input, $output)
-$input.addEventListener('input', updateValue);
-
-function updateValue(e) {
-    let text = e.target.value;
-
-    if(text.includes("/table")) {
-        text = text.replace("/table", "<hello>"); 
-    }
-
-    console.log(text)
-    $input.textContent = text;
-
+function getElementById(id) {
+  return document.getElementById(id);
 }
 
-console.log("this is popup")
+function updateValue(e, elem) {
+  let text = e.target.value;
+  elem.textContent = text;
+}
+
+function saveTextToStorage($input, $output) {
+  const input = $input.textContent;
+  const output = $output.textContent;
+
+  setChromeLocalStorage(input, output);
+}
+
+function initPopup() {
+  const $input = getElementById("input");
+  const $output = getElementById("output");
+  const $save = getElementById("save");
+
+  $input.addEventListener("input", (e) => updateValue(e, $input));
+  $output.addEventListener("input", (e) => updateValue(e, $output));
+  $save.addEventListener("click", () => saveTextToStorage($input, $output));
+}
+
+initPopup();
