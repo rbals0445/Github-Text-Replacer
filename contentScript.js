@@ -1,9 +1,22 @@
-document.addEventListener("keydown", function (event) {
+const userDefinedTextMap = {}; // 삽입삭제가 거의 없음.
+
+function init() {
+  document.addEventListener("keydown", textReplace);
+
+  chrome.storage.local.get(null, (result) => {
+    Object.keys(result).forEach((key) => {
+      userDefinedTextMap[key] = result[key];
+    });
+  });
+}
+
+function textReplace(event) {
   if (event.key === ".") {
     const selection = window.getSelection();
     const selectedString = selection.toString();
+    const registeredText = userDefinedTextMap[selectedString];
 
-    if (selectedString.length === 0) {
+    if (selectedString.length === 0 || typeof registeredText === "undefined") {
       return;
     }
 
@@ -16,20 +29,16 @@ document.addEventListener("keydown", function (event) {
 
       if (start !== end) {
         // 텍스트가 선택되었는지 확인
-        const replaceText = "hello World!";
         const curText = $inputNode.value;
 
         $inputNode.value =
-          curText.substring(0, start) + replaceText + curText.substring(end);
+          curText.substring(0, start) + registeredText + curText.substring(end);
 
         $inputNode.selectionStart = $inputNode.selectionEnd =
-          start + replaceText.length; // 커서 위치를 변경된 텍스트 끝으로 이동
+          start + registeredText.length; // 커서 위치를 변경된 텍스트 끝으로 이동
       }
     }
   }
-});
+}
 
-/**
- * TODO.
- * - chrome localstorage에서 등록된 key에 매칭되는지 확인 (확인되면 해당 텍스트로 replace)
- */
+init();
