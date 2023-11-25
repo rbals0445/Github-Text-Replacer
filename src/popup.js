@@ -53,3 +53,7 @@ function initPopup() {
 }
 
 initPopup();
+// TODO
+/**
+ * save 이후 list 확인하면 아무일도 안일어남. 해결필요
+ */
