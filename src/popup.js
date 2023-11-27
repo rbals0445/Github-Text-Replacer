@@ -19,25 +19,31 @@ function clearText(elems) {
   });
 }
 
-function blinkNotice(message) {
+function blinkNotice(message, isError = false) {
   const $notice = getElementById("notice");
 
   $notice.style.display = "block";
+  $notice.style.color = isError ? "red" : "green";
   $notice.textContent = message;
 
   setTimeout(() => {
     $notice.style.display = "none";
     $notice.textContent = "";
-  }, 2000);
+  }, 3000);
 }
 
 function saveTextToStorage($input, $output) {
   const input = $input.value;
   const output = $output.value;
 
-  setChromeLocalStorage(input, output);
-  clearText([$input, $output]);
-  blinkNotice("save success!");
+  setChromeLocalStorage(input, output)
+    .then(() => {
+      clearText([$input, $output]);
+      blinkNotice("save success!");
+    })
+    .catch(() => {
+      blinkNotice("save failed. due to text limit (10MB)", true);
+    });
 }
 
 function clearStorage($input, $output) {

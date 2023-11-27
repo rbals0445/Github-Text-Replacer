@@ -7,10 +7,17 @@ const getChromeLocalStorage = (key) => {
 };
 
 const setChromeLocalStorage = (key, value, callback) => {
-  chrome.storage.local.set({ [key]: value }).then(() => {
-    if (typeof callback === "function") {
-      callback();
-    }
+  return new Promise((resolve, reject) => {
+    chrome.storage.local
+      .set({ [key]: value })
+      .then(() => {
+        if (typeof callback === "function") {
+          callback();
+        }
+        resolve();
+      })
+      .catch(() => reject());
+    // exceed limit case
   });
 };
 
