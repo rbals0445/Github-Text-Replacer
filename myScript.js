@@ -1,8 +1,12 @@
-const userDefinedTextMap = {}; // 삽입삭제가 거의 없음.
+// contentScript
+const userDefinedTextMap = {};
 
 function init() {
   document.addEventListener("keydown", textReplace);
+  updateMap();
+}
 
+function updateMap() {
   getStorageValue(null).then((result) => {
     Object.keys(result).forEach((key) => {
       userDefinedTextMap[key] = result[key];
@@ -18,18 +22,11 @@ function getStorageValue(key) {
   });
 }
 
-// TODO. popup에서 등록하면 바로 반영되도록 수정
-async function textReplace(event) {
+function textReplace(event) {
   if (event.key === ".") {
     const selection = window.getSelection();
     const selectedString = selection.toString();
-    let registeredText = userDefinedTextMap[selectedString];
-
-    if (typeof registeredText === "undefined") {
-      const result = await getStorageValue(selectedString);
-      registeredText = userDefinedTextMap[selectedString] =
-        result[selectedString];
-    }
+    const registeredText = userDefinedTextMap[selectedString];
 
     if (selectedString.length === 0 || typeof registeredText === "undefined") {
       return;
@@ -55,5 +52,13 @@ async function textReplace(event) {
     }
   }
 }
+
+chrome.runtime.onMessage.addListener(function (request) {
+  const { key, value, command } = request || {};
+
+  if (command === "updateMap") {
+    userDefinedTextMap[key] = value;
+  }
+});
 
 init();

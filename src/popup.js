@@ -40,6 +40,16 @@ function saveTextToStorage($input, $output) {
     .then(() => {
       clearText([$input, $output]);
       blinkNotice("save success!");
+
+      chrome.tabs.query({}, function (tabs) {
+        tabs.forEach((tab) => {
+          chrome.tabs.sendMessage(tab.id, {
+            command: "updateMap",
+            key: input,
+            value: output,
+          });
+        });
+      });
     })
     .catch(() => {
       blinkNotice("save failed. due to text limit (10MB)", true);
